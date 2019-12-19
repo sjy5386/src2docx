@@ -10,7 +10,7 @@ class Src:
             f = open(filename, "r", encoding="utf-8")
             self.content = f.read()
             f.close()
-        except UnicodeDecodeError:
+        except (PermissionError, UnicodeDecodeError):
             self.content = None
 
 
@@ -42,8 +42,11 @@ class Src2Docx:
         srcs = []
         cwd = os.getcwd()
         for (path, dirs, files) in os.walk(self.directory):
-            for filename in files:
+            try:
                 os.chdir(path)
+            except PermissionError:
+                continue
+            for filename in files:
                 f = Src(str(filename))
                 if f.content is not None:
                     print(f.filename)
